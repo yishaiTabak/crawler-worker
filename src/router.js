@@ -121,9 +121,10 @@ const findSentence = (text, stringToSearch, index)=>{
 router.get("/get-string/:key", async(req,res)=>{
     try{
         const value = await redisClient.get(req.params.key)
-
-        res.send({value, a:"fds"})
+        if(value)
+          res.send({value, a:"fds", b:redisClient})
     }catch(err){
+      res.status(404).send(err)
         console.log(err);
     }
 })
