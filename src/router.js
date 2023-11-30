@@ -107,4 +107,25 @@ const findSentence = (text, stringToSearch, index)=>{
     redisClient.publish(channel, JSON.stringify(data));
   };
 
+
+  router.post("/set-string", async(req,res)=>{
+    try{
+        await redisClient.set(req.body.key, req.body.value)
+
+        res.send()
+    }catch(err){
+        console.log(err);
+    }
+})
+
+router.get("/get-string/:key", async(req,res)=>{
+    try{
+        const value = await redisClient.get(req.params.key)
+
+        res.send({value})
+    }catch(err){
+        console.log(err);
+    }
+})
+
 module.exports = router
