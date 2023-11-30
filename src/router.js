@@ -122,7 +122,7 @@ router.get("/get-string/:key", async(req,res)=>{
     try{
         const value = await redisClient.get(req.params.key)
 
-        res.send({value})
+        res.send({value, a:"fds"})
     }catch(err){
         console.log(err);
     }
