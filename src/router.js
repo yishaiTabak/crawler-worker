@@ -110,9 +110,8 @@ const findSentence = (text, stringToSearch, index)=>{
 
   router.post("/set-string", async(req,res)=>{
     try{
-        await redisClient.set("key1", "value1")
-        const val = await redisClient.get("key1")
-        res.send({val})
+        await redisClient.set(req.body.key, req.body.value)
+        res.send()
     }catch(err){
         console.log(err);
     }
@@ -123,7 +122,7 @@ router.get("/get-string/:key", async(req,res)=>{
         const value = await redisClient.get(req.params.key)
         if(!value)
           throw new Error("lm")
-          res.send({value, a:"fds"})
+          res.send({value})
     }catch(err){
       res.status(404).send(err)
         console.log(err);

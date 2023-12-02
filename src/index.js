@@ -10,6 +10,10 @@ app.use(express.json());
 const router = require('./router')
 app.use(router)
 
+app.use("/", (req,res) =>{
+  res.send("ok")
+})
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
