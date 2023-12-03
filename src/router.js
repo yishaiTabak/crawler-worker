@@ -41,7 +41,8 @@ router.post("/start", async(req,res) =>{
         findUrls($,url, alreadyUsedUrls, queueLinks, maxLinks, depth)
     } catch (error) {
       console.error('Error during crawling:', error.message);
-      publishCrawledData("url error", redisChannel)
+      if(depth === 1)
+        publishCrawledData("url error", redisChannel)
     }
   };
 
