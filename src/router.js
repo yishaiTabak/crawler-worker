@@ -4,6 +4,7 @@ const cheerio = require('cheerio');
 const Url = require('url')
 const Queue = require('../queue/queue'); // Replace with the actual library you are using for Queue
 const redisClient = require('./db/redis');
+const puppeteer = require('puppeteer')
 
 router.post("/start", async(req,res) =>{
   const {maxDepth, maxLinks,stringToSearch,startUrl} = req.body
@@ -11,10 +12,11 @@ router.post("/start", async(req,res) =>{
 
   const alreadyUsedUrls = [startUrl];
   const queueLinks = new Queue();
-
+  const browser = await puppeteer.launch();
+    const page = await browser.newPage();
   const searchWordAndLinks = async ({ url, depth, parentUrl}) => {
     try {
-        const $ = await loadData(url)
+        const $ = await loadData(page,url,stringToSearch)
 
         const title = $('title').text();
 
@@ -62,6 +64,7 @@ router.post("/start", async(req,res) =>{
 
 const findHighlightContext = ($,stringToSearch ) =>{
     const textContent = $('body').clone().find('script,noscript, style').remove().end().text();
+    // console.log(textContent);
 
     const index = textContent.toLowerCase().indexOf(" " +stringToSearch.toLowerCase()+ " ")
     if (index === -1)
@@ -78,11 +81,15 @@ const findSentence = (text, stringToSearch, index)=>{
     return result;
   }
   
-  const loadData = async (url) =>{
-      const response = await fetch(url);
-      const htmlText = await response.text();
-      const $ = cheerio.load(htmlText);
-      return $
+  const loadData = async (page,url) =>{
+    await page.goto(url);
+    await waitTillHTMLRendered(page)
+
+    const htmlContent = await page.content();
+
+    const $ = cheerio.load(htmlContent);
+
+    return $
   }
   
   const findUrls = ($,url, alreadyUsedUrls, queueLinks, maxLinks, depth) =>{
@@ -106,6 +113,33 @@ const findSentence = (text, stringToSearch, index)=>{
 
   const publishCrawledData = (data,channel) => {
     redisClient.publish(channel, JSON.stringify(data));
+  };
+
+  const waitTillHTMLRendered = async (page, timeout = 2000) => {
+    const checkDurationMsecs = 100;
+    const maxChecks = timeout / checkDurationMsecs;
+    let lastHTMLSize = 0;
+    let checkCounts = 1;
+    let countStableSizeIterations = 0;
+    const minStableSizeIterations = 3;
+  
+    while(checkCounts++ <= maxChecks){
+      let html = await page.content();
+      let currentHTMLSize = html.length; 
+      
+      if(lastHTMLSize != 0 && currentHTMLSize == lastHTMLSize) 
+        countStableSizeIterations++;
+      else 
+        countStableSizeIterations = 0; //reset the counter
+  
+      if(countStableSizeIterations >= minStableSizeIterations) {
+        console.log("Page rendered fully..");
+        break;
+      }
+  
+      lastHTMLSize = currentHTMLSize;
+      await page.waitForTimeout(checkDurationMsecs);
+    }  
   };
 
 
