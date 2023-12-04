@@ -16,7 +16,7 @@ router.post("/start", async(req,res) =>{
     const page = await browser.newPage();
   const searchWordAndLinks = async ({ url, depth, parentUrl}) => {
     try {
-        const $ = await loadData(page,url,stringToSearch)
+        const $ = await loadData(page,url)
 
         const title = $('title').text();
 
@@ -64,7 +64,6 @@ router.post("/start", async(req,res) =>{
 
 const findHighlightContext = ($,stringToSearch ) =>{
     const textContent = $('body').clone().find('script,noscript, style').remove().end().text();
-    // console.log(textContent);
 
     const index = textContent.toLowerCase().indexOf(" " +stringToSearch.toLowerCase()+ " ")
     if (index === -1)
