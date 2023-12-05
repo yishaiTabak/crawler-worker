@@ -18,7 +18,8 @@
     "fix-esm": "^1.0.1",
     "got": "^10.0.0",
     "htmlparser2": "^9.0.0",
-    "puppeteer": "^21.5.2",
+    "path": "^0.12.7",
+    "puppeteer": "^21.0.3",
     "redis": "^4.6.11",
     "request-promise": "^4.2.6",
     "ws": "^8.14.2"
