@@ -81,7 +81,7 @@ const findSentence = (text, stringToSearch, index)=>{
   }
   
   const loadData = async (page,url) =>{
-    await page.goto(url,{timeout: 2500, waitUntil:load});
+    await page.goto(url);
     await waitTillHTMLRendered(page)
 
     const htmlContent = await page.content();
